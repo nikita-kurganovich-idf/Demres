@@ -23,8 +23,8 @@ class PublishingPlugin : ProjectPlugin {
                         name = "GitHubPackages"
                         url = uri("https://maven.pkg.github.com/nikita-kurganovich-idf/Demres")
                         credentials {
-                            username = System.getenv("GITHUB_ACTOR")
-                            password = System.getenv("GITHUB_TOKEN")
+                            username = System.getenv("GITHUB_USER")
+                            password = System.getenv("GITHUB_API_KEY")
                         }
                     }
                 }
@@ -86,9 +86,6 @@ class PublishingPlugin : ProjectPlugin {
                         name: "${project.name}",
                         platforms: [
                             .iOS(.v13),
-                            .macOS(.v10_15),
-                            .tvOS(.v13),
-                            .watchOS(.v6)
                         ],
                         products: [
                             .library(

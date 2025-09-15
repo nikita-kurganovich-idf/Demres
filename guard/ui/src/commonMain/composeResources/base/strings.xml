@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<resources>
+    <string name="guard_ui_hello">Hello from Guard UI!</string>
+    <string name="guard_ui_next_button">To next screen</string>
+    <string name="guard_ui_show_image_button">Show image</string>
+</resources>

@@ -1,4 +1,4 @@
-rootProject.name = "KMMResDemo"
+rootProject.name = "idf-kmm-resdemo"
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
 includeBuild("convention")

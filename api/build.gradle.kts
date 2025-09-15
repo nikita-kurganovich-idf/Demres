@@ -1,5 +1,6 @@
 plugins {
     alias(libs.plugins.convention.language)
+    alias(libs.plugins.convention.publish)
 }
 
 android {

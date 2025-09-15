@@ -12,3 +12,7 @@ plugins {
     alias(libs.plugins.kotlinCocoapods) apply false
     alias(libs.plugins.moko.resources) apply false
 }
+
+allprojects {
+    version = "1.0.0"
+}

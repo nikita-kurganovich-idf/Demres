@@ -1,6 +1,5 @@
 plugins {
     alias(libs.plugins.convention.component)
-    alias(libs.plugins.convention.publish)
 }
 
 android {

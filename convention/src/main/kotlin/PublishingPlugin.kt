@@ -8,6 +8,7 @@ import org.gradle.api.tasks.bundling.Zip
 import org.gradle.kotlin.dsl.*
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.mpp.apple.XCFramework
+import tasks.GeneratePackageSwiftTask
 
 class PublishingPlugin : ProjectPlugin {
     override fun apply(target: Project) {
@@ -29,38 +30,40 @@ class PublishingPlugin : ProjectPlugin {
                     }
                 }
 
-                target.extensions.findByType<KotlinMultiplatformExtension>()?.let { kotlinExt ->
+                target.extensions.findByType<KotlinMultiplatformExtension>()?.apply {
                     val xcFramework = XCFramework()
+                    applyDefaultHierarchyTemplate()
 
-                    kotlinExt.apply {
-                        exportToIOS {
-                            baseName = project.moduleCamelName
-                            isStatic = true
-                            xcFramework.add(this)
-                        }
-
-                        androidTarget {
-                            publishLibraryVariants("release", "debug")
-                        }
+                    exportToIOS {
+                        baseName = project.moduleCamelName
+                        isStatic = true
+                        xcFramework.add(this)
+                    }
+                    androidTarget {
+                        publishLibraryVariants("release", "debug")
                     }
 
                     afterEvaluate {
                         publications {
                             withType<MavenPublication> {
-                                groupId = project.group.toString()
-                                artifactId = project.name
-                                version = project.version.toString()
+                                if (name == "kotlinMultiplatform") {
+                                    groupId = project.group.toString()
+                                    artifactId = project.name
+                                    version = project.version.toString()
 
-                                pom {
-                                    name.set(project.name)
-                                    description.set("Kotlin Multiplatform library for sharing resources")
-                                    url.set("https://github.com/nikita-kurganovich-idf/Demres")
-                                    
-                                    scm {
-                                        connection.set("scm:git:github.com/nikita-kurganovich-idf/Demres.git")
-                                        developerConnection.set("scm:git:ssh://github.com/nikita-kurganovich-idf/Demres.git")
+                                    pom {
+                                        name.set(project.name)
+                                        description.set("Kotlin Multiplatform library for sharing resources")
                                         url.set("https://github.com/nikita-kurganovich-idf/Demres")
+
+                                        scm {
+                                            connection.set("scm:git:github.com/nikita-kurganovich-idf/Demres.git")
+                                            developerConnection.set("scm:git:ssh://github.com/nikita-kurganovich-idf/Demres.git")
+                                            url.set("https://github.com/nikita-kurganovich-idf/Demres")
+                                        }
                                     }
+                                } else {
+                                    artifactId = null
                                 }
                             }
                         }
@@ -68,41 +71,10 @@ class PublishingPlugin : ProjectPlugin {
                 }
             }
 
-            tasks.register("generatePackageSwift") {
+            tasks.register<GeneratePackageSwiftTask>("generatePackageSwift") {
                 group = "publishing"
-                val outputDir = file("${layout.buildDirectory}/spm")
-                outputs.dir(outputDir)
-
-                doLast {
-                    val packageSwift = file("$outputDir/Package.swift")
-                    packageSwift.parentFile.mkdirs()
-
-                    packageSwift.writeText(
-                        """
-                    // swift-tools-version:5.3
-                    import PackageDescription
-                    
-                    let package = Package(
-                        name: "${project.name}",
-                        platforms: [
-                            .iOS(.v13),
-                        ],
-                        products: [
-                            .library(
-                                name: "${project.name}",
-                                targets: ["${project.name}"]
-                            )
-                        ],
-                        targets: [
-                            .binaryTarget(
-                                name: "${project.name}",
-                                path: "${project.name}.xcframework.zip"
-                            )
-                        ]
-                    )
-                    """.trimIndent()
-                    )
-                }
+                projectName.set(project.name)
+                outputDir.set(layout.buildDirectory.dir("spm"))
             }
 
             tasks.register<Zip>("packageXCFramework") {

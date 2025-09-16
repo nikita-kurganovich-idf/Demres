@@ -15,7 +15,7 @@ dependencyResolutionManagement {
     }
 
     versionCatalogs {
-        create("libs") {
+        create("libsCore") {
             from(files("../gradle/libs.versions.toml"))
         }
     }

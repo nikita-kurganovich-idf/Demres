@@ -19,15 +19,12 @@ decompose = "3.1.0"
 essenty = "2.1.0"
 napier = "2.7.1"
 moko-resources = "0.24.5"
-demres = "0.0.12"
+demres = "0.0.14"
 
 [libraries]
-gradleplugin-android = { module = "com.android.tools.build:gradle", version.ref = "agp" }
-gradleplugin-compose = { module = "org.jetbrains.compose:compose-gradle-plugin", version.ref = "composeMultiplatform" }
-gradleplugin-composeCompiler = { module = "org.jetbrains.kotlin:compose-compiler-gradle-plugin", version.ref = "composeMultiplatform" }
-gradleplugin-kotlin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
-gradleplugin-moko = { module = "dev.icerock.moko:resources-generator", version.ref = "moko-resources" }
-
+api = { module = "com.idf.kuni:api", version.ref = "demres" }
+guard-business-logic = { module = "com.idf.kuni:guard-business-logic", version.ref = "demres" }
+guard-ui = { module = "com.idf.kuni:guard-ui", version.ref = "demres" }
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
 kotlin-testJunit = { module = "org.jetbrains.kotlin:kotlin-test-junit", version.ref = "kotlin" }
 junit = { module = "junit:junit", version.ref = "junit" }
@@ -45,17 +42,10 @@ decompose-compose = { module = "com.arkivanov.decompose:extensions-compose", ver
 essenty-lifecycle = { module = "com.arkivanov.essenty:lifecycle", version.ref = "essenty" }
 napier = { module = "io.github.aakira:napier", version.ref = "napier"}
 moko-resources = { module = "dev.icerock.moko:resources", version.ref = "moko-resources" }
-moko-resources-compose = { module = "dev.icerock.moko:resources-compose", version.ref = "moko-resources" }
-moko-resources-test = { module = "dev.icerock.moko:resources-test", version.ref = "moko-resources" }
-
-# Demo
-demres-api = { module = "com.idf.kuni:api", version.ref = "demres" }
-demres-welcome-bl = { module = "com.idf.kuni:welcome-business-logic", version.ref = "demres" }
-demres-welcome-ui = { module = "com.idf.kuni:welcome-ui", version.ref = "demres" }
-demres-platform-bl = { module = "com.idf.kuni:platform-business-logic", version.ref = "demres" }
-demres-platform-ui = { module = "com.idf.kuni:platform-ui", version.ref = "demres" }
-demres-guard-bl = { module = "com.idf.kuni:guard-business-logic", version.ref = "demres" }
-demres-guard-ui = { module = "com.idf.kuni:guard-ui", version.ref = "demres" }
+platform-business-logic = { module = "com.idf.kuni:platform-business-logic", version.ref = "demres" }
+platform-ui = { module = "com.idf.kuni:platform-ui", version.ref = "demres" }
+welcome-business-logic = { module = "com.idf.kuni:welcome-business-logic", version.ref = "demres" }
+welcome-ui = { module = "com.idf.kuni:welcome-ui", version.ref = "demres" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
@@ -63,17 +53,6 @@ androidLibrary = { id = "com.android.library", version.ref = "agp" }
 composeMultiplatform = { id = "org.jetbrains.compose", version.ref = "composeMultiplatform" }
 composeCompiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
-androidKotlinMultiplatformLibrary = { id = "com.android.kotlin.multiplatform.library", version.ref = "agp" }
-androidLint = { id = "com.android.lint", version.ref = "agp" }
 kotlinx-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
-kotlinCocoapods = { id = "org.jetbrains.kotlin.native.cocoapods", version.ref = "kotlin" }
 moko-resources = { id = "dev.icerock.mobile.multiplatform-resources", version.ref = "moko-resources" }
 
-convention-language = { id = "dev.kmmresdemo.convention.language" }
-convention-component = { id = "dev.kmmresdemo.convention.component" }
-convention-ui = { id = "dev.kmmresdemo.convention.ui" }
-convention-base-compose = { id = "dev.kmmresdemo.convention.base.compose" }
-convention-publish = { id = "dev.kmmresdemo.convention.publish" }
-
-[bundles]
-gradle-plugins = [ "gradleplugin-moko", "gradleplugin-android", "gradleplugin-compose", "gradleplugin-composeCompiler", "gradleplugin-kotlin"]

@@ -1,6 +1,6 @@
 plugins {
-    alias(libs.plugins.convention.language)
-    alias(libs.plugins.convention.publish)
+    alias(libsCore.plugins.convention.language)
+    alias(libsCore.plugins.convention.publish)
 }
 
 android {
@@ -11,7 +11,7 @@ kotlin {
     sourceSets {
         commonMain {
             dependencies {
-                implementation(libs.decompose)
+                implementation(libsCore.decompose)
             }
         }
     }

@@ -9,17 +9,16 @@ import com.android.build.api.dsl.DefaultConfig
 import com.android.build.api.dsl.Installation
 import com.android.build.api.dsl.LibraryExtension
 import com.android.build.api.dsl.ProductFlavor
-import com.android.build.gradle.internal.dsl.BaseAppModuleExtension
-import org.gradle.accessors.dm.LibrariesForLibs
+import org.gradle.accessors.dm.LibrariesForLibsCore
 import org.gradle.api.JavaVersion
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.plugins.ExtensionAware
 import org.gradle.kotlin.dsl.findByType
+import org.gradle.kotlin.dsl.support.uppercaseFirstChar
 import org.gradle.kotlin.dsl.the
 import org.jetbrains.compose.ComposePlugin
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
-import org.jetbrains.kotlin.gradle.plugin.mpp.Framework
 
 private typealias AndroidExtensions = CommonExtension<
         out BuildFeatures,
@@ -29,8 +28,8 @@ private typealias AndroidExtensions = CommonExtension<
         out AndroidResources,
         out Installation>
 
-val Project.projectDeps: LibrariesForLibs
-    get() = the<LibrariesForLibs>()
+val Project.projectDeps: LibrariesForLibsCore
+    get() = the<LibrariesForLibsCore>()
 
 val Project.projectJavaVersion: JavaVersion
     get() = JavaVersion.toVersion(projectDeps.versions.java.get().toInt())
@@ -65,28 +64,12 @@ internal val Project.commonExtension: AndroidExtensions
         ?: extensions.findByType<ApplicationExtension>()
             ) as AndroidExtensions
 
-fun KotlinMultiplatformExtension.exportToIOS(block: Framework.() -> Unit) {
-    listOf(
-        iosX64(),
-        iosArm64(),
-        iosSimulatorArm64()
-    ).forEach { iosTarget ->
-        iosTarget.binaries.framework {
-            block()
-        }
-    }
-}
-
-private fun String.removeProjectPrefix(): String = this
-    .replace("'", "")
-    .replace("project ", "")
-
 internal val Project.modulePackage: String
-    get() = "com.idf.kuni${displayName.replace(":", ".").removeProjectPrefix()}"
+    get() = "com.idf.kuni.${name.replace("-", ".")}"
 
 internal val Project.moduleCamelName: String
-    get() = project.displayName.replace(
-        regex = Regex(":[a-z]"),
+    get() = project.name.replace(
+        regex = Regex("-[a-z]"),
         transform = { result ->
             var transformedName = ""
             result.groups.forEach { group ->
@@ -94,4 +77,4 @@ internal val Project.moduleCamelName: String
             }
             return@replace transformedName
         }
-    ).removeProjectPrefix()
+    ).uppercaseFirstChar()

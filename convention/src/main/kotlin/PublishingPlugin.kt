@@ -1,14 +1,21 @@
 import extensions.ProjectPlugin
-import extensions.exportToIOS
 import extensions.moduleCamelName
+import extensions.modulePackage
 import org.gradle.api.Project
 import org.gradle.api.publish.PublishingExtension
-import org.gradle.api.publish.maven.MavenPublication
+import org.gradle.api.publish.maven.tasks.AbstractPublishToMaven
 import org.gradle.api.tasks.bundling.Zip
-import org.gradle.kotlin.dsl.*
+import org.gradle.kotlin.dsl.configure
+import org.gradle.kotlin.dsl.findByType
+import org.gradle.kotlin.dsl.getValue
+import org.gradle.kotlin.dsl.provideDelegate
+import org.gradle.kotlin.dsl.register
+import org.gradle.kotlin.dsl.withType
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.mpp.apple.XCFramework
+import tasks.FinalizeReleaseTask
 import tasks.GeneratePackageSwiftTask
+import tasks.GitPushTask
 
 class PublishingPlugin : ProjectPlugin {
     override fun apply(target: Project) {
@@ -16,8 +23,15 @@ class PublishingPlugin : ProjectPlugin {
             with(pluginManager) {
                 apply("maven-publish")
             }
-
             configure<PublishingExtension> {
+                publications {
+                    matching { it.name in listOf("iosArm64", "iosX64", "kotlinMultiplatform") }.all {
+                        val targetPublication = this@all
+                        tasks.withType<AbstractPublishToMaven>()
+                            .matching { it.publication == targetPublication }
+                            .configureEach { onlyIf { findProperty("isMainHost") == "true" } }
+                    }
+                }
                 repositories {
                     maven {
                         name = "GitHubPackages"
@@ -30,77 +44,66 @@ class PublishingPlugin : ProjectPlugin {
                 }
             }
             extensions.findByType<KotlinMultiplatformExtension>()?.apply {
-
-                val xcFramework = XCFramework()
+                androidTarget { publishLibraryVariants("release", "debug") }
+                iosArm64()
+                iosX64()
+                iosSimulatorArm64()
                 applyDefaultHierarchyTemplate()
 
-                exportToIOS {
-                    baseName = project.moduleCamelName
-                    isStatic = true
-                    xcFramework.add(this)
-                }
-                androidTarget {
-                    publishLibraryVariants("release", "debug")
-                }
-            }
-            configure<PublishingExtension> {
-                publications {
-                    withType<MavenPublication>().configureEach {
-                        if (name == "kotlinMultiplatform") {
-                            groupId = project.group.toString()
-                            artifactId = project.name
-                            version = project.version.toString()
-
-                            pom {
-                                name.set(project.name)
-                                description.set("Kotlin Multiplatform library for sharing resources")
-                                url.set("https://github.com/nikita-kurganovich-idf/Demres")
-
-                                scm {
-                                    connection.set("scm:git:github.com/nikita-kurganovich-idf/Demres.git")
-                                    developerConnection.set("scm:git:ssh://github.com/nikita-kurganovich-idf/Demres.git")
-                                    url.set("https://github.com/nikita-kurganovich-idf/Demres")
-                                }
-                            }
-                        }
+                val xcFramework = XCFramework(moduleCamelName)
+                listOf(
+                    iosX64(),
+                    iosArm64(),
+                    iosSimulatorArm64()
+                ).forEach { target ->
+                    target.binaries.framework {
+                        baseName = moduleCamelName
+                        isStatic = true
+                        binaryOption("bundleId", modulePackage)
+                        xcFramework.add(this)
                     }
                 }
             }
 
-            tasks.register<GeneratePackageSwiftTask>("generatePackageSwift") {
+            val packageXCFramework by tasks.register<Zip>("packageXCFramework") {
                 group = "publishing"
-                projectName.set(project.name)
-                outputDir.set(layout.buildDirectory.dir("spm"))
+                dependsOn("assemble", "assemble${moduleCamelName}XCFramework")
+
+                archiveFileName.set("${moduleCamelName}.xcframework.zip")
+                destinationDirectory.set(layout.buildDirectory.get().dir("libs"))
+
+                from(layout.buildDirectory.dir("XCFrameworks/release"))
             }
 
-            tasks.register<Zip>("packageXCFramework") {
+            val generatePackageSwift by tasks.register<GeneratePackageSwiftTask>("generatePackageSwift") {
                 group = "publishing"
-                dependsOn("assemble")
 
-                val xcFrameworkDir = file("${layout.buildDirectory}/XCFrameworks/release")
-                from(xcFrameworkDir) {
-                    include("${project.name}.xcframework/**")
-                }
+                val zipFile = packageXCFramework.archiveFile
+                val releaseTag = project.version.toString()
+                val url =
+                    "https://github.com/nikita-kurganovich-idf/Demres/releases/download/$releaseTag/${zipFile.get().asFile.name}"
 
-                archiveBaseName.set(project.name)
-                archiveExtension.set("xcframework.zip")
-                destinationDirectory.set(file("${layout.buildDirectory}/libs"))
+                projectName.set(project.moduleCamelName)
+                xcframeworkZipFile.set(zipFile)
+                xcframeworkUrl.set(url)
+                packageSwiftFile.set(layout.buildDirectory.get().file("spm/Package.swift"))
             }
 
-            tasks.register("prepareGitHubRelease") {
+            tasks.register<GitPushTask>("publishPackageSwift") {
+                group = "publishing"
+                dependsOn(generatePackageSwift)
+                versionTag.set(project.version.toString())
+                spmFile.set(layout.buildDirectory.get().file("spm/Package.swift"))
+            }
+
+            tasks.register<FinalizeReleaseTask>("prepareGitHubRelease") {
                 group = "publishing"
                 dependsOn(
                     "publishAllPublicationsToGitHubPackagesRepository",
-                    "packageXCFramework",
-                    "generatePackageSwift"
+                    generatePackageSwift
                 )
-
-                doLast {
-                    println("Release artifacts prepared:")
-                    println("- Maven artifacts published to GitHub Packages")
-                    println("- XCFramework package: ${project.layout.buildDirectory}/libs/${project.name}.xcframework.zip")
-                    println("- SPM package manifest: ${project.layout.buildDirectory}/spm/Package.swift")
-                }
+                xcframeworkZipFile.set(packageXCFramework.archiveFile)
+                spmPackageFile.set(generatePackageSwift.packageSwiftFile.get())
             }
         }
     }

@@ -1,7 +1,5 @@
-rootProject.name = "idf-kmm-resdemo"
+rootProject.name = "res-sample"
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
-
-includeBuild("convention")
 
 pluginManagement {
     repositories {
@@ -34,17 +32,7 @@ dependencyResolutionManagement {
             }
         }
     }
-    versionCatalogs {
-        create("libsCore") {
-            from(files("gradle/libs.versions.toml"))
-        }
-    }
 }
 
-include(":api")
-include(":guard:guard-ui")
-include(":guard:guard-business-logic")
-include(":platform:platform-ui")
-include(":platform:platform-business-logic")
-include(":welcome:welcome-ui")
-include(":welcome:welcome-business-logic")
+include(":composeApp")
+include(":shared")

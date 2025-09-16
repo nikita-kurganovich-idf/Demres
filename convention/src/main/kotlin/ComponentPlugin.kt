@@ -13,7 +13,8 @@ class ComponentPlugin : ProjectPlugin {
             with(extensions.getByType(KotlinMultiplatformExtension::class.java)) {
                 with(sourceSets) {
                     commonMain.dependencies {
-                        implementation(project(":api"))
+                        implementation(projectDeps.demres.api)
+
                         implementation(projectDeps.decompose)
                         implementation(projectDeps.essenty.lifecycle)
                     }

@@ -19,8 +19,8 @@ struct PlatformView: View {
                     .format(args_: [component.name])
                     .localized()
             )
-           // Image(container: PlatformUiRiosMain.images.shared, resource: \.apple)
-            Image(uiImage: PlatformContent_iosKt.platformImageRes.toUIImage()!)
+            Image(container: PlatformUiRiosMain.images.shared, resource: \.apple)
+            //Image(uiImage: PlatformContent_iosKt.platformImageRes.toUIImage()!)
             Button(action: component.goBack) {
                 Text(
                     PlatformUiR.strings().platform_ui_back_button.desc()

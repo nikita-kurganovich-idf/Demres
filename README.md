@@ -28,8 +28,9 @@ The `System.getenv()` call in the build script requires these to be actual envir
 *   Open your shell configuration file (e.g., `~/.zshrc`, `~/.bashrc`, or `~/.bash_profile`).
 *   Add the following lines, replacing placeholders with your actual credentials:
     
-```
-bash export GITHUB_USER="your_github_username" export GITHUB_API_KEY="your_github_personal_access_token"
+```bash
+export GITHUB_USER="your_github_username"
+export GITHUB_API_KEY="your_github_personal_access_token"
 ```
 *   Save the file and apply the changes by running source ~/.zshrc (or your respective file) or by restarting your terminal and Android Studio
 

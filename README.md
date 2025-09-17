@@ -3,8 +3,6 @@ A simple demo for sharing resources natively
 
 # Launching the KMP Application (res-sample)
 
-This document provides instructions on how to set up your environment, build, and run the `res-sample` Kotlin Multiplatform (KMP) application, which features native UIs for each platform and consumes libraries from a parent project structure, with some dependencies hosted on GitHub Packages.
-
 ## 1. Prerequisites
 
 *   **Android Studio:** Latest stable version recommended
@@ -12,6 +10,8 @@ This document provides instructions on how to set up your environment, build, an
 *   **JDK:** Java Development Kit, version 21
 *   **Kotlin Multiplatform Mobile Plugin:** Ensure it's installed in Android Studio.
 *   **CocoaPods:** Install via `brew` or `gem`.
+
+All check can be done with [kdoctor](https://github.com/Kotlin/kdoctor)
 
 ## 2. Environment Setup for GitHub Dependencies
 
